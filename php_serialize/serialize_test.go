@@ -24,6 +24,14 @@ func TestEncodeNil(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeNil(b *testing.B) {
+	var source PhpValue = nil
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeBoolTrue(t *testing.T) {
 	var (
 		source PhpValue
@@ -39,6 +47,14 @@ func TestEncodeBoolTrue(t *testing.T) {
 		if val != "b:1;" {
 			t.Errorf("Bool value decoded incorrectly, have got %q\n", val)
 		}
+	}
+}
+
+func BenchmarkEncodeBool(b *testing.B) {
+	var source PhpValue = true
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -78,6 +94,14 @@ func TestEncodeInt(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeInt(b *testing.B) {
+	var source PhpValue = 42
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeIntMinus(t *testing.T) {
 	var (
 		source PhpValue
@@ -93,6 +117,14 @@ func TestEncodeIntMinus(t *testing.T) {
 		if val != "i:-42;" {
 			t.Errorf("Int value decoded incorrectly, have got %q\n", val)
 		}
+	}
+}
+
+func BenchmarkEncodeIntMinus(b *testing.B) {
+	var source PhpValue = -42
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -114,6 +146,14 @@ func TestEncodeFloat64(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeFloat(b *testing.B) {
+	var source PhpValue = 42.378900000000002
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeFloat64Minus(t *testing.T) {
 	var (
 		source PhpValue
@@ -132,6 +172,14 @@ func TestEncodeFloat64Minus(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeFloatMinus(b *testing.B) {
+	var source PhpValue = -42.378900000000002
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeString(t *testing.T) {
 	var (
 		source PhpValue
@@ -147,6 +195,14 @@ func TestEncodeString(t *testing.T) {
 		if val != "s:6:\"foobar\";" {
 			t.Errorf("String value decoded incorrectly, have got %q\n", val)
 		}
+	}
+}
+
+func BenchmarkEncodeString(b *testing.B) {
+	var source PhpValue = "foobar"
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -176,6 +232,18 @@ func TestEncodeArray(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeArray(b *testing.B) {
+	source := PhpArray{
+		0: 10,
+		1: 11,
+		2: 12,
+	}
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeArray2(t *testing.T) {
 	var (
 		source PhpValue
@@ -202,6 +270,18 @@ func TestEncodeArray2(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeArray2(b *testing.B) {
+	source := map[PhpValue]PhpValue{
+		0: 10,
+		1: 11,
+		2: 12,
+	}
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
+	}
+}
+
 func TestEncodeArrayMap(t *testing.T) {
 	var (
 		source PhpValue
@@ -222,6 +302,17 @@ func TestEncodeArrayMap(t *testing.T) {
 		} else if !strings.Contains(val, "s:3:\"bar\";i:2;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:3:\"bar\";i:2;", val)
 		}
+	}
+}
+
+func BenchmarkEncodeArrayMap(b *testing.B) {
+	source := PhpArray{
+		"foo": 4,
+		"bar": 2,
+	}
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -247,6 +338,19 @@ func TestEncodeArrayArray(t *testing.T) {
 		} else if !strings.Contains(val, "s:3:\"bar\";i:2;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:3:\"bar\";i:2;", val)
 		}
+	}
+}
+
+func BenchmarkEncodeArrayArray(b *testing.B) {
+	source := PhpArray{
+		"foo": PhpArray{
+			0: 10,
+		},
+		"bar": 2,
+	}
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -276,6 +380,20 @@ func TestEncodeObject(t *testing.T) {
 		} else if !strings.Contains(val, "s:13:\"\x00Test\x00private\";i:3;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:13:\"\x00Test\x00private\";i:3;", val)
 		}
+	}
+}
+
+func BenchmarkEncodeObject(b *testing.B) {
+	b.StopTimer()
+	source := NewPhpObject("Test")
+	source.SetPublic("public", 1)
+	source.SetProtected("protected", 2)
+	source.SetPrivate("private", 3)
+	b.ReportAllocs()
+	b.StartTimer()
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -323,6 +441,30 @@ func TestEncodeArrayOfObjects(t *testing.T) {
 		} else if !strings.Contains(val, "s:14:\"\x00Test2\x00private\";i:23;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:14:\"\x00Test2\x00private\";i:23;", val)
 		}
+	}
+}
+
+func BenchmarkEncodeArrayOfObjects(b *testing.B) {
+	b.StopTimer()
+	obj1 := NewPhpObject("Test1")
+	obj1.SetPublic("public", 11)
+	obj1.SetProtected("protected", 12)
+	obj1.SetPrivate("private", 13)
+
+	obj2 := NewPhpObject("Test2")
+	obj2.SetPublic("public", 21)
+	obj2.SetProtected("protected", 22)
+	obj2.SetPrivate("private", 23)
+
+	source := PhpArray{
+		0: obj1,
+		1: obj2,
+	}
+	b.ReportAllocs()
+	b.StartTimer()
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }
 
@@ -427,5 +569,13 @@ func TestEncodeSplArray(t *testing.T) {
 
 	if data != expected {
 		t.Errorf("SplArray decoded incorrectly, expected: %q, got: %q\n", expected, data)
+	}
+}
+
+func BenchmarkEncodeSplArray(b *testing.B) {
+	source := NewPhpSplArray(PhpArray{"foo": 42}, nil)
+	encoder := NewSerializer()
+	for i := 0; i < b.N; i++ {
+		encoder.Encode(source)
 	}
 }

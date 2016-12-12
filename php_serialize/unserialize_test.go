@@ -21,6 +21,13 @@ func TestDecodeNil(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeNil(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("N;")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeBoolTrue(t *testing.T) {
 	var (
 		val PhpValue
@@ -36,6 +43,13 @@ func TestDecodeBoolTrue(t *testing.T) {
 		} else if boolVal != true {
 			t.Errorf("Bool (true) value decoded incorrectly, expected: %v, have got: %v\n", true, boolVal)
 		}
+	}
+}
+
+func BenchmarkDecodeBool(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("b:1;")
+		decoder.Decode()
 	}
 }
 
@@ -75,6 +89,13 @@ func TestDecodeInt(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeInt(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("i:42;")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeIntMinus(t *testing.T) {
 	var (
 		val PhpValue
@@ -90,6 +111,13 @@ func TestDecodeIntMinus(t *testing.T) {
 		} else if intVal != -42 {
 			t.Errorf("Int value decoded incorrectly, expected: %v, have got: %v\n", -42, intVal)
 		}
+	}
+}
+
+func BenchmarkDecodeIntMinus(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("i:-42;")
+		decoder.Decode()
 	}
 }
 
@@ -111,6 +139,13 @@ func TestDecodeFloat64(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeFloat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("d:42.378900000000002;")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeFloat64Minus(t *testing.T) {
 	var (
 		val PhpValue
@@ -129,6 +164,13 @@ func TestDecodeFloat64Minus(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeMinus(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("d:-42.378900000000002;")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeString(t *testing.T) {
 	var (
 		val PhpValue
@@ -144,6 +186,13 @@ func TestDecodeString(t *testing.T) {
 		} else if strVal != "foobar" {
 			t.Errorf("String value decoded incorrectly, expected: %v, have got: %v\n", "foobar", strVal)
 		}
+	}
+}
+
+func BenchmarkDecodeString(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("s:6:\"foobar\";")
+		decoder.Decode()
 	}
 }
 
@@ -181,6 +230,13 @@ func TestDecodeArray(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeArray(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeArrayMap(t *testing.T) {
 	var (
 		val PhpValue
@@ -206,6 +262,13 @@ func TestDecodeArrayMap(t *testing.T) {
 		} else if intV2 != 2 {
 			t.Errorf("Array value decoded incorrectly, expected: %v, have got: %v\n", 2, intV2)
 		}
+	}
+}
+
+func BenchmarkDecodeArrayMap(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("a:2:{s:3:\"foo\";i:4;s:3:\"bar\";i:2;}")
+		decoder.Decode()
 	}
 }
 
@@ -253,6 +316,13 @@ func TestDecodeArrayArray(t *testing.T) {
 	}
 }
 
+func BenchmarkDecodeArrayArray(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("a:2:{s:3:\"foo\";a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}s:3:\"bar\";i:2;}")
+		decoder.Decode()
+	}
+}
+
 func TestDecodeObject(t *testing.T) {
 	var (
 		val PhpValue
@@ -286,6 +356,13 @@ func TestDecodeObject(t *testing.T) {
 		} else if intV3 != 3 {
 			t.Errorf("Private member of object was decoded incorrectly, expected: %v, have got: %v\n", 3, intV3)
 		}
+	}
+}
+
+func BenchmarkDecodeObject(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("O:4:\"Test\":3:{s:6:\"public\";i:1;s:12:\"\x00*\x00protected\";i:2;s:13:\"\x00Test\x00private\";i:3;}")
+		decoder.Decode()
 	}
 }
 
@@ -350,6 +427,13 @@ func TestDecodeArrayOfObjects(t *testing.T) {
 		} else if intV3 != 23 {
 			t.Errorf("Private member of object was decoded incorrectly, expected: %v, have got: %v\n", 23, intV3)
 		}
+	}
+}
+
+func BenchmarkDecodeArrayOfObjects(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("a:2:{i:0;O:5:\"Test1\":3:{s:6:\"public\";i:11;s:12:\"\x00*\x00protected\";i:12;s:14:\"\x00Test1\x00private\";i:13;}i:1;O:5:\"Test2\":3:{s:6:\"public\";i:21;s:12:\"\x00*\x00protected\";i:22;s:14:\"\x00Test2\x00private\";i:23;}}")
+		decoder.Decode()
 	}
 }
 
@@ -480,6 +564,13 @@ func TestDecodeSplArray(t *testing.T) {
 
 	if len(properties) > 0 {
 		t.Errorf("Expected empty PhpArray, got %v", properties)
+	}
+}
+
+func BenchmarkDecodeSplArray(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		decoder := NewUnSerializer("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
+		decoder.Decode()
 	}
 }
 
